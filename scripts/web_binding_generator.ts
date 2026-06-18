@@ -562,7 +562,6 @@ export class Application implements ApplicationInterface {
 
 function main() {
     console.log("You can customize the application implementation! and this file too");
-    assert(false, "Not Implemented! Although you can remove it to see the code working for first build");
 
     // All the paths are relative to project directory!!!
     
@@ -576,7 +575,7 @@ function main() {
     createBindingsFromContent(fs.readFileSync(_EXPORT_METHOD_HEADER_FILEPATH, "utf-8"));
 
 
-    const _OUTPUT_FILEPATH = "/home/nikhil/workspace/programming/WxtEditor/platform/implmentation/web/bindings.ts"
+    const _OUTPUT_FILEPATH = "./platform/implementation/web/bindings.ts"
     let _outputString = 
         generateTSCodeForIMPORT_MODULES() +
         generateTSCodeForIMPORT_MODULE_FUNCTION_SIGNATURES() +

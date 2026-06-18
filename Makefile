@@ -18,7 +18,7 @@ build-web:
 		-std=c23 -Wall -Werror -Wextra -Wpedantic -O3 -Wno-gnu-null-pointer-arithmetic  \
 		-o build/web/wxt.wasm 								                            \
 		-I${MAKEFILE_DIR}																\
-		-PLATFORM_WEB												 		 	 	    \
+		-DPLATFORM_WEB												 		 	 	    \
 		platform/implementation/web/memory.c											\
 		src/export.c
 	${HOME}/workspace/install/wabt/wasm2wat build/web/wxt.wasm > build/web/wxt.wat

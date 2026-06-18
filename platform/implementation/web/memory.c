@@ -94,8 +94,8 @@ void *wasm_sbrk(int);
 #define	EDOM		33	/* Math argument out of domain of func */
 #define	ERANGE		34	/* Math result not representable */
 
-#define memset WASM_memset
-#define memcpy WASM_memcpy
+#define memset PLATFORM_memset
+#define memcpy PLATFORM_memcpy
 #include "./dlmalloc.c"
 #undef memset
 #undef memcpy

@@ -43,8 +43,8 @@ void *PLATFORM_malloc (size_t);
 void *PLATFORM_realloc(void *, size_t);
 void  PLATFORM_free   (void *);
 void *PLATFORM_memset (void *, int, size_t);
-void *PLATFORM_memcpy (void *, void *, size_t);
-void *PLATFORM_memmove(void *, void *, size_t);
+void *PLATFORM_memcpy (void *, const void *, size_t);
+void *PLATFORM_memmove(void *, const void *, size_t);
 
 
 #else // platform native
