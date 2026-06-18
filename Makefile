@@ -18,7 +18,8 @@ build-web:
 		-std=c23 -Wall -Werror -Wextra -Wpedantic -O3 -Wno-gnu-null-pointer-arithmetic  \
 		-o build/web/wxt.wasm 								                            \
 		-I${MAKEFILE_DIR}																\
-		-DWXT_PLATFORM_WEB												 		 	 	\
+		-PLATFORM_WEB												 		 	 	    \
+		platform/implementation/web/memory.c											\
 		src/export.c
 	${HOME}/workspace/install/wabt/wasm2wat build/web/wxt.wasm > build/web/wxt.wat
 	@echo -e "\x1b[38;2;0;140;255mCreating Web definitions\x1b[0m"
