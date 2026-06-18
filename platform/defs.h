@@ -42,6 +42,9 @@ inline size_t PLATFORM_internal_strlen(const char * ptr) {
 void *PLATFORM_malloc (size_t);
 void *PLATFORM_realloc(void *, size_t);
 void  PLATFORM_free   (void *);
+void *PLATFORM_memset (void *, int, size_t);
+void *PLATFORM_memcpy (void *, void *, size_t);
+void *PLATFORM_memmove(void *, void *, size_t);
 
 
 #else // platform native
@@ -52,9 +55,13 @@ void  PLATFORM_free   (void *);
         RETURN_TYPE FUNCTION_NAME(__VA_ARGS__)
 
 #include <stdlib.h>
+#include <string.h>
 #define PLATFORM_malloc  malloc
 #define PLATFORM_realloc realloc
 #define PLATFORM_free    free
+#define PLATFORM_memset  memset 
+#define PLATFORM_memcpy  memcpy
+#define PLATFORM_memmove memmove
 #endif
 
 #endif // _PLAFORM_DEFS_H_

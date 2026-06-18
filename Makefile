@@ -9,7 +9,8 @@ _:
 run-web-demo: build-web
 	@echo -e "\x1b[38;2;0;140;255mSyncing code base\x1b[0m"
 	cp -r build/web/* demo/web/wasm/
-	cp -r platform/impl/web/* demo/web/src/
+	cp -r platform/implementation/web/* demo/web/src/
+	rm -rf demo/web/src/.*c
 	cd demo/web && tsc && python -m http.server 6969
 
 build-web:

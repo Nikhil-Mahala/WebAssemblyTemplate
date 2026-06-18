@@ -562,21 +562,28 @@ export class Application implements ApplicationInterface {
 
 function main() {
     console.log("You can customize the application implementation! and this file too");
-    assert(false, "Not Implemented!");
+    assert(false, "Not Implemented! Although you can remove it to see the code working for first build");
 
-    // Dummy example
-    // const _INPUT_FILEPATH  = "./input"
-    // const _OUTPUT_FILEPATH = "./output"
+    // All the paths are relative to project directory!!!
+    
+    const _INPUT_DIRECTORY_PATH = "./platform/modules/"
+    const _dirInfo = fs.readdirSync(_INPUT_DIRECTORY_PATH);
+    _dirInfo.forEach((dirEntry) => {
+        createBindingsFromContent(fs.readFileSync(_INPUT_DIRECTORY_PATH + "/" + dirEntry, "utf-8"));
+    });
 
-    // createBindingsFromContent(fs.readFileSync(_INPUT_FILEPATH, "utf-8"));
+    const _EXPORT_METHOD_HEADER_FILEPATH = "./src/export.h";
+    createBindingsFromContent(fs.readFileSync(_EXPORT_METHOD_HEADER_FILEPATH, "utf-8"));
 
-    // let _outputString = 
-    //     generateTSCodeForIMPORT_MODULES() +
-    //     generateTSCodeForIMPORT_MODULE_FUNCTION_SIGNATURES() +
-    //     generateTSCodeForEXPORT_METHODS() +
-    //     APPLICATION_CODE
-    // ;
-    // fs.writeFileSync(_OUTPUT_FILEPATH, _outputString);
+
+    const _OUTPUT_FILEPATH = "/home/nikhil/workspace/programming/WxtEditor/platform/implmentation/web/bindings.ts"
+    let _outputString = 
+        generateTSCodeForIMPORT_MODULES() +
+        generateTSCodeForIMPORT_MODULE_FUNCTION_SIGNATURES() +
+        generateTSCodeForEXPORT_METHODS() +
+        APPLICATION_CODE
+    ;
+    fs.writeFileSync(_OUTPUT_FILEPATH, _outputString);
 }
 
 main();
