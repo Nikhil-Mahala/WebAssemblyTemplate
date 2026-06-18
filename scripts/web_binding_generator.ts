@@ -257,6 +257,7 @@ function generateTSCodeForIMPORT_MODULES() {
         if (_idx) { _codeString += "\n"; }
         _codeString += `export interface IMPORT_MODULE_${moduleName.toUpperCase()}_BINDING {\n`;
             _codeString += `  [key: string]: Function\n`
+            _codeString += `_constructor(app: ApplicationInterface): void\n`;
         moduleValueArray.forEach((moduleValue) => {
             _codeString += `  /**\n`
             moduleValue.params.forEach((paramInfo) => {
@@ -294,12 +295,6 @@ function generateTSCodeForIMPORT_MODULE_FUNCTION_SIGNATURES() {
         _codeString += `  ]), // IMPORT_MODULE_${moduleName.toUpperCase()}_BINDING\n`;
     });
     _codeString += `}); // _IMPORT_MODULE_OBJECT_FUNCTION_NAME_ARRAY_MAPPING\n\n`;
-    _codeString += `} // EXPORT_METHODS \n\n`;
-    _codeString += `const _EXPORT_OBJECT_FUNCTION_NAME_ARRAY = Object.freeze([\n`
-    EXPORTED_METHODS.forEach((methodInfo) => {
-        _codeString += `    "${methodInfo.funcName}",\n`;
-    });
-    _codeString += `]); // _EXPORT_OBJECT_FUNCTION_NAME_ARRAY\n\n`;
     return _codeString;
 }
 
@@ -335,6 +330,11 @@ function generateTSCodeForEXPORT_METHODS() {
             _codeString += `): ${getTSType(methodInfo.returnCType)};\n`;
     });
     _codeString += `} // EXPORT_METHODS \n\n`;
+    _codeString += `const _EXPORT_OBJECT_FUNCTION_NAME_ARRAY = Object.freeze([\n`
+    EXPORTED_METHODS.forEach((methodInfo) => {
+        _codeString += `    "${methodInfo.funcName}",\n`;
+    });
+    _codeString += `]); // _EXPORT_OBJECT_FUNCTION_NAME_ARRAY\n\n`;
     return _codeString;
 }
 
@@ -486,14 +486,19 @@ export interface ApplicationInterface {
         ensureViews() : void
         isValidPoitner(pointer: number) : boolean
     }
+    sharedAssets : {
+        textDecoder : TextDecoder
+        canvas      : HTMLCanvasElement
+    }
 };
 
 export class Application implements ApplicationInterface {
-    static async createApplication(wasmFilePath: string, importObject: IMPORT_MODULE_OBJECT) {
+    static async createApplication(wasmFilePath: string, importObject: IMPORT_MODULE_OBJECT, sharedAssets: ApplicationInterface["sharedAssets"]) {
         const wasmImports : Record<string, Record<string, Function>> = {};
         for (let moduleName in _IMPORT_MODULE_OBJECT_FUNCTION_NAME_ARRAY_MAPPING) {
             const sourceModule = importObject[moduleName]!;
             if (!sourceModule) { throw Error(\`Missing module: '\${moduleName}' from 'importObject' argument\`); }
+            if (sourceModule["appInterface"] !== undefined) { (sourceModule["appInterface"] as any) = this; }
 
             wasmImports[moduleName] = {};
             const moduleFunctionNameArray = _IMPORT_MODULE_OBJECT_FUNCTION_NAME_ARRAY_MAPPING[moduleName]!;
@@ -504,11 +509,16 @@ export class Application implements ApplicationInterface {
             }
         }
         const wasmSource = await WebAssembly.instantiateStreaming(fetch(wasmFilePath), wasmImports);
-        return new Application(wasmSource);
+        const app = new Application(wasmSource, sharedAssets)!;
+        for (let moduleName in _IMPORT_MODULE_OBJECT_FUNCTION_NAME_ARRAY_MAPPING) {
+            ((importObject[moduleName]!._constructor as Function)(app! as ApplicationInterface));
+        }
+        return app;
     }
 
-    private constructor(wasmSource: WebAssembly.WebAssemblyInstantiatedSource) {
+    private constructor(wasmSource: WebAssembly.WebAssemblyInstantiatedSource, sharedAssets: ApplicationInterface["sharedAssets"]) {
         this.wasmSource = wasmSource;
+        this.sharedAssets = sharedAssets;
         this.mapExportedMethods();
         this.initializeMemoryObject();
    }
@@ -563,6 +573,7 @@ export class Application implements ApplicationInterface {
     private wasmSource: WebAssembly.WebAssemblyInstantiatedSource;
             methods  = {} as ApplicationInterface["methods"]
             memory   = {} as ApplicationInterface["memory"]
+            sharedAssets = {} as ApplicationInterface["sharedAssets"]
 };
 `;
 
@@ -574,7 +585,8 @@ function main() {
     const _INPUT_DIRECTORY_PATH = "./platform/modules/"
     const _dirInfo = fs.readdirSync(_INPUT_DIRECTORY_PATH);
     _dirInfo.forEach((dirEntry) => {
-        createBindingsFromContent(fs.readFileSync(_INPUT_DIRECTORY_PATH + "/" + dirEntry, "utf-8"));
+        console.log(`[Log]: Reading file: '${_INPUT_DIRECTORY_PATH + "/" + dirEntry}' ...`);
+        createBindingsFromContent( fs.readFileSync(_INPUT_DIRECTORY_PATH + "/" + dirEntry, "utf-8") );
     });
 
     const _EXPORT_METHOD_HEADER_FILEPATH = "./src/export.h";
@@ -592,3 +604,4 @@ function main() {
 }
 
 main();
+
