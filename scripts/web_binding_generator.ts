@@ -294,6 +294,12 @@ function generateTSCodeForIMPORT_MODULE_FUNCTION_SIGNATURES() {
         _codeString += `  ]), // IMPORT_MODULE_${moduleName.toUpperCase()}_BINDING\n`;
     });
     _codeString += `}); // _IMPORT_MODULE_OBJECT_FUNCTION_NAME_ARRAY_MAPPING\n\n`;
+    _codeString += `} // EXPORT_METHODS \n\n`;
+    _codeString += `const _EXPORT_OBJECT_FUNCTION_NAME_ARRAY = Object.freeze([\n`
+    EXPORTED_METHODS.forEach((methodInfo) => {
+        _codeString += `    "${methodInfo.funcName}",\n`;
+    });
+    _codeString += `]); // _EXPORT_OBJECT_FUNCTION_NAME_ARRAY\n\n`;
     return _codeString;
 }
 
@@ -509,7 +515,7 @@ export class Application implements ApplicationInterface {
 
    private mapExportedMethods() {
        const exports = this.wasmSource.instance.exports;
-       for (let exportMethodName in this.methods) {
+       for (let exportMethodName of _EXPORT_OBJECT_FUNCTION_NAME_ARRAY) {
            const exportedMethod = exports[exportMethodName] as Function
            if (!exportedMethod) { throw Error(\`Missing exported function: '\${exportMethodName}' in wasm source\`) };
            this.methods[exportMethodName] = exportedMethod;
